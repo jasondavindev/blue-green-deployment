@@ -1,0 +1,38 @@
+version: '2.3'
+
+x-application_standard: &application_standard
+  build:
+    dockerfile: docker/Dockerfile
+    context: ../
+  image: bluegreen_app
+  working_dir: /home/node/app
+  networks:
+    - application
+  volumes:
+    - /home/node/app/node_modules
+    - ../app:/home/node/app/
+
+services:
+  app-blue:
+    <<: *application_standard
+    container_name: bluegreen_app_blue
+  app-green:
+    <<: *application_standard
+    container_name: bluegreen_app_green
+
+  nginx:
+    image: nginx
+    container_name: bluegreen_nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - app-blue
+      - app-green
+    networks:
+      - application
+
+networks:
+  application:
+    driver: bridge
