@@ -9,7 +9,7 @@ USER node
 
 COPY app/package.json app/yarn.lock ./
 
-RUN echo $PWD && ls -la && yarn install
+RUN yarn install
 
 EXPOSE 3000
 
