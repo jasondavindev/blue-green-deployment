@@ -1,4 +1,4 @@
-# Deploy blue-green
+# Blue-Green Deployment
 
 Application Node.js + Nginx with blue-green deploy
 
