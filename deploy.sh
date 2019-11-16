@@ -2,9 +2,13 @@ CONTAINER_PREFIX="bluegreen"
 CURRENT_VERSION=$(docker ps|grep --max-count=1 -oP "${CONTAINER_PREFIX}_app_\K(.*)" || echo "green")
 NEW_VERSION=$([ "$CURRENT_VERSION" == "green" ] && echo "blue" || echo "green")
 
+function replace_version {
+  sed "s/CURRENT_VERSION/$NEW_VERSION/g" docker/nginx/original.conf > docker/nginx/default.conf
+}
+
 function redirect_traffic {
   echo "Redirect traffic"
-  sed "s/CURRENT_VERSION/$NEW_VERSION/g" docker/nginx/original.conf > docker/nginx/default.conf
+  replace_version
   docker exec -ti "${CONTAINER_PREFIX}_nginx" service nginx reload
   exitcode=$?
   return $exitcode
@@ -32,7 +36,7 @@ else
   echo "First deploy"
 
   docker-compose -f docker/docker-compose.yml down
-  sed "s/CURRENT_VERSION/$NEW_VERSION/g" docker/nginx/original.conf > docker/nginx/default.conf
+  replace_version
   docker-compose -f docker/docker-compose.yml up -d
 fi
 
